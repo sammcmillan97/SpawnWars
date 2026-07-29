@@ -6,27 +6,23 @@ import com.badlogic.gdx.utils.Array;
 
 public class Building extends Entity {
 
-    private float spawnTimer;
-    private float spawnInterval;
+    private final float SPAWN_INTERVAL = 5f;
+
+    private IntervalTimer spwanTimer;
     private Texture knightTexture; 
 
     private static final float unitHealth = 100;
 
     protected Building(Vector2 position, float width, float height, Team team, float maxHealth, Texture castleTexture, Texture knightTexture) {
         super(position, width, height, team, maxHealth, castleTexture);
-        this.maxHealth = maxHealth;
-        this.health = maxHealth;
-        this.spawnTimer = 0;
-        this.spawnInterval = 5;
+        spwanTimer = new IntervalTimer(SPAWN_INTERVAL);
         this.knightTexture = knightTexture;
     }
 
     @Override
     protected void update(float delta, GameContext gameContext) {
-        spawnTimer += delta;              
-        if (spawnTimer >= spawnInterval) {
+        if (spwanTimer.advance(delta)) {
             spawnUnit(gameContext.spawnBuffer);
-            spawnTimer -= spawnInterval; 
         }
     }
 

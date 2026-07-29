@@ -31,35 +31,42 @@ public class TeamTest {
     }
 
     @Test
-    @DisplayName("passive gold is earned correctly") 
-    void passiveGoldIsAddedAfterTimerReachesInterval() {
-        float timePassed = 10; //10 Seconds
-        team.earnPassiveGold(timePassed);
-        assertEquals(STARTING_GOLD + PASSIVE_GOLD, team.getGold(), EPSILON);
+    @DisplayName("try spend returns true and subtracts the cost when a team has enough gold")
+    void trueIsReturnedWhenTeamHasEnoughGold() {
+        float cost = 5;
+        assertEquals(true, team.spendGold(cost));
+        assertEquals(STARTING_GOLD - cost, team.getGold(), EPSILON);
     }
 
-    
     @Test
-    @DisplayName("passive gold is not earned when interval is not met")
-    void passiveGoldIsNotAfterTimerDoesNotReachInterval() {
-        float timePassed = 9; //10 Seconds
-        team.earnPassiveGold(timePassed);
+    @DisplayName("try spend returns false and does not subtract the cost when a team does not have enough gold")
+    void falseIsReturnedWhenTeamDoesNotHaveEnoughGold() {
+        float cost = 15;
+        assertEquals(false, team.spendGold(cost));
         assertEquals(STARTING_GOLD, team.getGold(), EPSILON);
     }
 
     @Test
-    @DisplayName("passive gold is earned correctly when interval has been met and exceeded")
-    void passiveGoldIsEarnedAfterTimerReachedIntervalAndExceeded() {
-        float timePassed = 5; //5 Seconds
-        team.earnPassiveGold(timePassed);
-        team.earnPassiveGold(timePassed);
-        team.earnPassiveGold(timePassed);
-
-        assertEquals(STARTING_GOLD + PASSIVE_GOLD, team.getGold(), EPSILON);
-        assertEquals(timePassed, team.getGoldTimer(), EPSILON);
+    @DisplayName("can afford returns true if team has enough gold")
+    void trueIsReturnedWhenTeamCanAfford() {
+        float cost = 10;
+        assertEquals(true, team.canAfford(cost));
     }
 
-    
+    @Test
+    @DisplayName("can afford returns false if team does not has enough gold")
+    void falseIsReturnedWhenTeamCanNotAfford() {
+        float cost = 15;
+        assertEquals(false, team.canAfford(cost));
+    }
+
+    @Test
+    @DisplayName("try spend exactly teams current gold returns try gold is set to zero")
+    void trySpendExactlyTeamGoldReturnTrueZeroGoldRemains() {
+        float cost = 10;
+        assertEquals(true, team.spendGold(cost));
+        assertEquals(0, team.getGold(), EPSILON);
+    }
 
     
 }

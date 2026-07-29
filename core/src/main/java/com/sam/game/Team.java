@@ -6,21 +6,18 @@ public class Team {
 
     private Color teamColor;
     private int teamNumber;
+    
     private float gold;
-
     private float passiveGold;
-    private float goldTimer;
-
-    private float goldInterval;
+    private IntervalTimer goldTimer;
 
     public Team(Color teamColor, int teamNumber, float startingGold, float passiveGold, float goldInterval) {
         this.teamColor = teamColor;
         this.teamNumber = teamNumber;
-        this.goldInterval = goldInterval;
         this.gold = startingGold;
-
         this.passiveGold = passiveGold;
-        this.goldTimer = 0;
+
+        goldTimer = new IntervalTimer(goldInterval);
     }
 
     protected float getGold() {
@@ -35,8 +32,17 @@ public class Team {
         this.gold+= goldAdded; 
     }
 
-    protected void removeGold(float goldRemoved) {
-        this.gold-= goldRemoved;
+    protected boolean spendGold(float goldRemoved) {
+        if (canAfford(goldRemoved)) {
+            this.gold-= goldRemoved;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected boolean canAfford(float cost) {
+        return this.gold >= cost;
     }
 
     protected Color getTeamColor() {
@@ -47,15 +53,9 @@ public class Team {
         return teamNumber;
     }
 
-    protected float getGoldTimer() {
-        return this.goldTimer;
-    }
-
     protected void earnPassiveGold(float delta) {
-        goldTimer+= delta;
-        if (goldInterval <= goldTimer) {
-            gold+= passiveGold;
-            goldTimer-= goldInterval;
+        if (goldTimer.advance(delta)) {
+            gold+= passiveGold;    
         }
     }
 
