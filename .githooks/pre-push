@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# Runs the test suite before allowing a push. A non-zero exit aborts the push.
+#
+# This hook lives in .githooks/ (which IS version controlled) rather than
+# .git/hooks/ (which is not). It is wired up with:
+#
+#     git config core.hooksPath .githooks
+#
+# That config is per-clone, so it has to be re-run after a fresh clone.
+
+if [ -n "$SKIP_TESTS" ]; then
+    echo "pre-push: SKIP_TESTS is set, skipping tests."
+    exit 0
+fi
+
+echo "pre-push: running test suite..."
+
+./gradlew test --console=plain
+status=$?
+
+if [ $status -ne 0 ]; then
+    echo ""
+    echo "pre-push: TESTS FAILED -- push aborted."
+    echo "  Fix the failures and try again."
+    echo "  To bypass deliberately: git push --no-verify"
+    exit 1
+fi
+
+echo "pre-push: tests passed, continuing with push."
+exit 0
