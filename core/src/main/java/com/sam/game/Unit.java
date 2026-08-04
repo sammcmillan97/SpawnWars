@@ -1,27 +1,26 @@
 package com.sam.game;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
 public class Unit extends Entity {
 
     private Entity target;
+
     private float movementSpeed;
-    private float attackSpeed;
     private float range;
     private float damage;
     private IntervalTimer attackTimer; 
 
-    protected Unit(Vector2 position, float width, float height, Team team, float maxHealth, Texture texture) {
-        super(position, width, height, team, maxHealth, texture);
+    protected Unit(Vector2 position, Team team, UnitType unitType) {
+        super(position, unitType.getWidth(), unitType.getHeight(), team, unitType.getMaxHealth(), unitType.getTexture());
         this.target = null;
         
-        this.movementSpeed = 50f;
-        this.damage = 10;
-        this.range = 20;
-        this.attackSpeed = 2;
+        this.movementSpeed = unitType.getMovementSpeed();
+        this.damage = unitType.getDamage();
+        this.range = unitType.getRange();
 
-        attackTimer = new IntervalTimer(attackSpeed);
+        //Attacks per second
+        attackTimer = new IntervalTimer(1 / unitType.getAttackSpeed());
     }
 
 

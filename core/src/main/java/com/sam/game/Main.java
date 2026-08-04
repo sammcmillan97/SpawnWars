@@ -17,24 +17,53 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
+
     private Texture castleTexture;
     private Texture knightTexture;
+    private Texture mineTexture;
+
     private OrthographicCamera camera;
     private FitViewport viewPort;
     private GameContext gameContext;
 
     //The below will eventually come from config 
+
+    //Unit
     private static final float MOVE_SPEED = 200;
+    private static final float UNIT_WIDTH = 30;
+    private static final float UNIT_HEIGHT = 30;
+    private static final float UNIT_HEALTH = 50;
+    private static final float UNIT_MOVEMENT_SPEED = 50;
+    private static final float UNIT_DAMAGE = 10;
+    private static final float UNIT_RANGE = 10;
+    private static final float UNIT_ATTACK_SPEED = 0.5f; //Attacks per second
 
-    private static final float  buildingHealth = 500;
+    //Spawn Building
+    private static final float BUILDING_HEALTH = 500;
+    private static final float SPAWN_BUILDING_COST = 100;
+    private static final float CASTLE_WIDTH = 100;
+    private static final float CASTLE_HEIGHT = 100;
 
+    //Econmy Building
+    private static final float GOLD_GENERATION = 10;
+
+    //Team
     public static final int PLAYER_ONE = 1;
     public static final int Player_TWO  = 2;
     public static final float STARTING_GOLD = 500;
     public static final float PASSIVE_GOLD = 10;
     public static final float PASSIVE_GOLD_INTERVAL = 10;
 
+    //Costs
+    public static final float CASTLE_COST = 400;
+    public static final float MINE_COST = 500;
+
+    //Player control
+    public Team player;
+
     private BitmapFont font;
+
+    protected UnitType knight;
 
     //Runs once 
     @Override
@@ -42,29 +71,34 @@ public class Main extends ApplicationAdapter {
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
         camera.position.set(400, 240, 0);
-        viewPort = new FitViewport(800, 800, camera);
+        viewPort = new FitViewport(2000, 2000, camera);
 
         font = new BitmapFont();          // built-in 15px white Arial
         font.getData().setScale(2f);
 
         castleTexture = new Texture("castle.png");
         knightTexture = new Texture("knight.png");
+        mineTexture = new Texture("mine.png");
 
         gameContext = new GameContext();
 
         //In future build gamesetup screen to determine these values
-        Team playerOne = new Team(Color.RED, PLAYER_ONE, STARTING_GOLD, PASSIVE_GOLD, PASSIVE_GOLD_INTERVAL);
+        player = new Team(Color.RED, PLAYER_ONE, STARTING_GOLD, PASSIVE_GOLD, PASSIVE_GOLD_INTERVAL);
         Team playerTwo = new Team(Color.BLUE, Player_TWO, STARTING_GOLD, PASSIVE_GOLD, PASSIVE_GOLD_INTERVAL);
         
-        gameContext.addTeam(playerOne);
+        gameContext.addTeam(player);
         gameContext.addTeam(playerTwo);
 
-        Building playerCastle = new Building(new Vector2(200, 200), 100, 100, playerOne, buildingHealth, castleTexture, knightTexture);
-        Building enemyCastle = new Building(new Vector2(600, 600), 100, 100, playerTwo, buildingHealth, castleTexture, knightTexture); 
+        knight = new UnitType(UNIT_WIDTH, UNIT_HEIGHT, UNIT_HEALTH, knightTexture, UNIT_MOVEMENT_SPEED, UNIT_DAMAGE, UNIT_RANGE, UNIT_ATTACK_SPEED);
+
+        SpawnBuilding playerCastle = new SpawnBuilding(new Vector2(200, 200), CASTLE_WIDTH, CASTLE_HEIGHT, player, BUILDING_HEALTH, castleTexture, knight);
+        EconomyBuilding playerMine = new EconomyBuilding(new Vector2(300, 300), 100 , 100, player, BUILDING_HEALTH, mineTexture, GOLD_GENERATION); 
+
+        SpawnBuilding enemyCastle = new SpawnBuilding(new Vector2(600, 600), CASTLE_WIDTH, CASTLE_HEIGHT, playerTwo, BUILDING_HEALTH, castleTexture, knight); 
+
+        gameContext.addToEntityArray(playerMine);
         gameContext.addToEntityArray(playerCastle);
         gameContext.addToEntityArray(enemyCastle);
-        
-
     }
 
     public void cameraControl(OrthographicCamera camera, float delta) {
@@ -94,6 +128,21 @@ public class Main extends ApplicationAdapter {
         }
     }
 
+    //To be abstracted
+    public void playerControl(GameContext gameContext) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
+            float x = 0;
+            float y = 0;
+            x = Gdx.input.getX();
+            y = Gdx.input.getY();
+            Vector2 buildingPosition = viewPort.unproject(new Vector2(x, y));
+            if (player.spendGold(SPAWN_BUILDING_COST)) {
+                gameContext.spawnBuffer.add(new SpawnBuilding(buildingPosition, 100, 100, player, BUILDING_HEALTH, castleTexture, knight));
+            }
+
+        }
+    }
+
     //Every frame 
     @Override
     public void render() {
@@ -101,6 +150,7 @@ public class Main extends ApplicationAdapter {
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
         
         cameraControl(camera, delta);
+        playerControl(gameContext);
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
@@ -128,7 +178,6 @@ public class Main extends ApplicationAdapter {
         }
         batch.end();
 
-
         //Temp
         Matrix4 hudMatrix =new Matrix4();
         hudMatrix.setToOrtho2D(0, 0, viewPort.getWorldWidth(), viewPort.getWorldHeight());
@@ -149,6 +198,7 @@ public class Main extends ApplicationAdapter {
         batch.dispose();
         knightTexture.dispose();
         castleTexture.dispose();
+        mineTexture.dispose();
         gameContext.dispose();
         font.dispose();
     }
