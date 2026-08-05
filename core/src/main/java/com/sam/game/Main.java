@@ -5,7 +5,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
@@ -18,34 +17,13 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
 
-    private Texture castleTexture;
-    private Texture knightTexture;
-    private Texture mineTexture;
-
     private OrthographicCamera camera;
     private FitViewport viewPort;
     private GameContext gameContext;
+    private Catalogue catalogue;
 
-    //The below will eventually come from config 
-
-    //Unit
-    private static final float MOVE_SPEED = 200;
-    private static final float UNIT_WIDTH = 30;
-    private static final float UNIT_HEIGHT = 30;
-    private static final float UNIT_HEALTH = 50;
-    private static final float UNIT_MOVEMENT_SPEED = 50;
-    private static final float UNIT_DAMAGE = 10;
-    private static final float UNIT_RANGE = 10;
-    private static final float UNIT_ATTACK_SPEED = 0.5f; //Attacks per second
-
-    //Spawn Building
-    private static final float BUILDING_HEALTH = 500;
-    private static final float SPAWN_BUILDING_COST = 100;
-    private static final float CASTLE_WIDTH = 100;
-    private static final float CASTLE_HEIGHT = 100;
-
-    //Econmy Building
-    private static final float GOLD_GENERATION = 10;
+    //Controls
+    public static final float CAMERA_MOVE_SPEED = 300;
 
     //Team
     public static final int PLAYER_ONE = 1;
@@ -54,16 +32,10 @@ public class Main extends ApplicationAdapter {
     public static final float PASSIVE_GOLD = 10;
     public static final float PASSIVE_GOLD_INTERVAL = 10;
 
-    //Costs
-    public static final float CASTLE_COST = 400;
-    public static final float MINE_COST = 500;
-
     //Player control
     public Team player;
 
     private BitmapFont font;
-
-    protected UnitType knight;
 
     //Runs once 
     @Override
@@ -76,11 +48,8 @@ public class Main extends ApplicationAdapter {
         font = new BitmapFont();          // built-in 15px white Arial
         font.getData().setScale(2f);
 
-        castleTexture = new Texture("castle.png");
-        knightTexture = new Texture("knight.png");
-        mineTexture = new Texture("mine.png");
-
         gameContext = new GameContext();
+        catalogue = new Catalogue();
 
         //In future build gamesetup screen to determine these values
         player = new Team(Color.RED, PLAYER_ONE, STARTING_GOLD, PASSIVE_GOLD, PASSIVE_GOLD_INTERVAL);
@@ -89,12 +58,10 @@ public class Main extends ApplicationAdapter {
         gameContext.addTeam(player);
         gameContext.addTeam(playerTwo);
 
-        knight = new UnitType(UNIT_WIDTH, UNIT_HEIGHT, UNIT_HEALTH, knightTexture, UNIT_MOVEMENT_SPEED, UNIT_DAMAGE, UNIT_RANGE, UNIT_ATTACK_SPEED);
+        SpawnBuilding playerCastle = new SpawnBuilding(new Vector2(200, 200), player, catalogue.castleType);
+        EconomyBuilding playerMine = new EconomyBuilding(new Vector2(300, 300), player, catalogue.mineType); 
 
-        SpawnBuilding playerCastle = new SpawnBuilding(new Vector2(200, 200), CASTLE_WIDTH, CASTLE_HEIGHT, player, BUILDING_HEALTH, castleTexture, knight);
-        EconomyBuilding playerMine = new EconomyBuilding(new Vector2(300, 300), 100 , 100, player, BUILDING_HEALTH, mineTexture, GOLD_GENERATION); 
-
-        SpawnBuilding enemyCastle = new SpawnBuilding(new Vector2(600, 600), CASTLE_WIDTH, CASTLE_HEIGHT, playerTwo, BUILDING_HEALTH, castleTexture, knight); 
+        SpawnBuilding enemyCastle = new SpawnBuilding(new Vector2(600, 600), playerTwo, catalogue.castleType); 
 
         gameContext.addToEntityArray(playerMine);
         gameContext.addToEntityArray(playerCastle);
@@ -112,19 +79,19 @@ public class Main extends ApplicationAdapter {
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            camera.position.x += MOVE_SPEED * delta;
+            camera.position.x += CAMERA_MOVE_SPEED * delta;
         }
         
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            camera.position.x -= MOVE_SPEED * delta;
+            camera.position.x -= CAMERA_MOVE_SPEED * delta;
         }
         
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            camera.position.y += MOVE_SPEED * delta;
+            camera.position.y += CAMERA_MOVE_SPEED * delta;
         }
         
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            camera.position.y -= MOVE_SPEED * delta;
+            camera.position.y -= CAMERA_MOVE_SPEED * delta;
         }
     }
 
@@ -136,8 +103,8 @@ public class Main extends ApplicationAdapter {
             x = Gdx.input.getX();
             y = Gdx.input.getY();
             Vector2 buildingPosition = viewPort.unproject(new Vector2(x, y));
-            if (player.spendGold(SPAWN_BUILDING_COST)) {
-                gameContext.spawnBuffer.add(new SpawnBuilding(buildingPosition, 100, 100, player, BUILDING_HEALTH, castleTexture, knight));
+            if (player.spendGold(catalogue.castleType.getCost())) {
+                gameContext.spawnBuffer.add(new SpawnBuilding(buildingPosition, player, catalogue.castleType));
             }
 
         }
@@ -196,10 +163,8 @@ public class Main extends ApplicationAdapter {
     @Override
     public void dispose() {
         batch.dispose();
-        knightTexture.dispose();
-        castleTexture.dispose();
-        mineTexture.dispose();
-        gameContext.dispose();
         font.dispose();
+
+        catalogue.dispose();
     }
 }

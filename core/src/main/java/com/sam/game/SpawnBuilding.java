@@ -1,25 +1,22 @@
 package com.sam.game;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 public class SpawnBuilding extends Entity {
 
-    private static final float SPAWN_INTERVAL = 5f;
-
-    private IntervalTimer spwanTimer;
+    private IntervalTimer spawnTimer;
     private UnitType unitType;
 
-    protected SpawnBuilding(Vector2 position, float width, float height, Team team, float maxHealth, Texture castleTexture, UnitType spawn) {
-        super(position, width, height, team, maxHealth, castleTexture);
-        this.spwanTimer = new IntervalTimer(SPAWN_INTERVAL);
-        this.unitType = spawn;
+    protected SpawnBuilding(Vector2 position, Team team, SpawnBuildingType buildingType) {
+        super(position, buildingType.getWidth(), buildingType.getHeight(), team, buildingType.getMaxHealth(), buildingType.getTexture());
+        this.spawnTimer = new IntervalTimer(buildingType.getSpawnInterval());
+        this.unitType = buildingType.getUnitType();
     }
 
     @Override
     protected void update(float delta, GameContext gameContext) {
-        if (spwanTimer.advance(delta)) {
+        if (spawnTimer.advance(delta)) {
             spawnUnit(gameContext.spawnBuffer);
         }
     }
