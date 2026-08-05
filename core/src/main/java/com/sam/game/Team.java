@@ -1,6 +1,7 @@
 package com.sam.game;
 
 import com.badlogic.gdx.graphics.Color;
+import com.sam.game.util.IntervalTimer;
 
 public class Team {
 
@@ -20,7 +21,7 @@ public class Team {
         goldTimer = new IntervalTimer(goldInterval);
     }
 
-    protected float getGold() {
+    public float getGold() {
         return this.gold;
     }
 
@@ -28,7 +29,7 @@ public class Team {
         return this.passiveGold;
     }
 
-    protected void addGold(float goldAdded) {
+    public void addGold(float goldAdded) {
         this.gold+= goldAdded; 
     }
 
@@ -45,7 +46,7 @@ public class Team {
         return this.gold >= cost;
     }
 
-    protected Color getTeamColor() {
+    public Color getTeamColor() {
         return this.teamColor;
     }
 

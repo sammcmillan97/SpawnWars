@@ -1,4 +1,4 @@
-package com.sam.game;
+package com.sam.game.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -1,4 +1,4 @@
-package com.sam.game;
+package com.sam.game.content;
 
 import java.util.ArrayList;
 import java.util.List;

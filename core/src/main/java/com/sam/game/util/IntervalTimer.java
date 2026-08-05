@@ -1,4 +1,4 @@
-package com.sam.game;
+package com.sam.game.util;
 
 public class IntervalTimer {
 
@@ -18,7 +18,7 @@ public class IntervalTimer {
         return elapsed / interval;
     }
 
-    protected boolean advance(float delta) {
+    public boolean advance(float delta) {
         elapsed += delta;              
         if (elapsed >= interval) {
             elapsed-= interval;

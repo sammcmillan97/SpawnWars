@@ -1,4 +1,4 @@
-package com.sam.game;
+package com.sam.game.content;
 
 import com.badlogic.gdx.graphics.Texture;
 
@@ -24,35 +24,35 @@ public class UnitType {
         this.attackSpeed = attackSpeed;
     }
 
-    protected float getWidth() {
+    public float getWidth() {
         return this.width;
     }
     
-    protected float getHeight() {
+    public float getHeight() {
         return this.height;
     }
     
-    protected float getMaxHealth() {
+    public float getMaxHealth() {
         return this.maxHealth;
     }
     
-    protected Texture getTexture() {
+    public Texture getTexture() {
         return this.texture;
     }
 
-    protected float getMovementSpeed() {
+    public float getMovementSpeed() {
         return this.movementSpeed;
     }
 
-    protected float getDamage() {
+    public float getDamage() {
         return this.damage;
     }
 
-    protected float getRange() {
+    public float getRange() {
         return this.range;
     }
 
-    protected float getAttackSpeed() {
+    public float getAttackSpeed() {
         return this.attackSpeed;
     }
 }

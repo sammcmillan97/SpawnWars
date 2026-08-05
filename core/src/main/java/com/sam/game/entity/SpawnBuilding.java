@@ -1,21 +1,26 @@
-package com.sam.game;
+package com.sam.game.entity;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.sam.game.GameContext;
+import com.sam.game.Team;
+import com.sam.game.content.SpawnBuildingType;
+import com.sam.game.content.UnitType;
+import com.sam.game.util.IntervalTimer;
 
 public class SpawnBuilding extends Entity {
 
     private IntervalTimer spawnTimer;
     private UnitType unitType;
 
-    protected SpawnBuilding(Vector2 position, Team team, SpawnBuildingType buildingType) {
+    public SpawnBuilding(Vector2 position, Team team, SpawnBuildingType buildingType) {
         super(position, buildingType.getWidth(), buildingType.getHeight(), team, buildingType.getMaxHealth(), buildingType.getTexture());
         this.spawnTimer = new IntervalTimer(buildingType.getSpawnInterval());
         this.unitType = buildingType.getUnitType();
     }
 
     @Override
-    protected void update(float delta, GameContext gameContext) {
+    public void update(float delta, GameContext gameContext) {
         if (spawnTimer.advance(delta)) {
             spawnUnit(gameContext.spawnBuffer);
         }

@@ -1,9 +1,11 @@
-package com.sam.game;
+package com.sam.game.entity;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.sam.game.GameContext;
+import com.sam.game.Team;
 
 public abstract class Entity {
 
@@ -37,11 +39,11 @@ public abstract class Entity {
         this.health = maxHealth;
     }
 
-    protected boolean isDead() { return health <= 0; }
+    public boolean isDead() { return health <= 0; }
 
-    protected abstract void update(float delta, GameContext gameContext);
+    public abstract void update(float delta, GameContext gameContext);
 
-    protected void render(SpriteBatch batch, GameContext gameContext) {
+    public void render(SpriteBatch batch, GameContext gameContext) {
         batch.setColor(team.getTeamColor());
         batch.draw(texture, position.x - this.width / 2, position.y - this.height / 2, width, height);
         batch.setColor(Color.WHITE);

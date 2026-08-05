@@ -1,6 +1,10 @@
-package com.sam.game;
+package com.sam.game.entity;
 
 import com.badlogic.gdx.math.Vector2;
+import com.sam.game.GameContext;
+import com.sam.game.Team;
+import com.sam.game.content.UnitType;
+import com.sam.game.util.IntervalTimer;
 
 public class Unit extends Entity {
 
@@ -25,7 +29,7 @@ public class Unit extends Entity {
 
 
     @Override
-    protected void update(float delta, GameContext gameContext) {
+    public void update(float delta, GameContext gameContext) {
         if (this.health <= 0) {
             return; 
         }

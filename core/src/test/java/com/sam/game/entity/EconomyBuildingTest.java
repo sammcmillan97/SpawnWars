@@ -1,10 +1,13 @@
-package com.sam.game;
+package com.sam.game.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import com.sam.game.Team;
+import com.sam.game.content.EconomyBuildingType;
 
 public class EconomyBuildingTest {
 

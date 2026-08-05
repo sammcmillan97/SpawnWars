@@ -1,4 +1,4 @@
-package com.sam.game;
+package com.sam.game.content;
 
 import com.badlogic.gdx.graphics.Texture;
 
