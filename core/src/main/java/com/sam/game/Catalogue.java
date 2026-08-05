@@ -64,11 +64,11 @@ public class Catalogue {
         float buildCost = 600;
         float goldAmount = 10;
         float goldInterval = 10;
-        this.mineType = new EconomyBuildingType(width, height, maxHealth, buildCost, mineTexture, goldAmount, goldInterval);
+        this.mineType = new EconomyBuildingType(width, height, maxHealth, buildCost, mineTexture, goldInterval, goldAmount);
     }
 
 
-    public void loadTextures() {
+    private void loadTextures() {
         castleTexture = new Texture("castle.png");
         textures.add(castleTexture);
         knightTexture = new Texture("knight.png");

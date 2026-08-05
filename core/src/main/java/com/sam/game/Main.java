@@ -98,11 +98,7 @@ public class Main extends ApplicationAdapter {
     //To be abstracted
     public void playerControl(GameContext gameContext) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
-            float x = 0;
-            float y = 0;
-            x = Gdx.input.getX();
-            y = Gdx.input.getY();
-            Vector2 buildingPosition = viewPort.unproject(new Vector2(x, y));
+            Vector2 buildingPosition = viewPort.unproject(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
             if (player.spendGold(catalogue.castleType.getCost())) {
                 gameContext.spawnBuffer.add(new SpawnBuilding(buildingPosition, player, catalogue.castleType));
             }
