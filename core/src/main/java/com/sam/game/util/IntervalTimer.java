@@ -10,11 +10,11 @@ public class IntervalTimer {
         this.interval = interval;
     }
 
-    protected float getElapsed() {
+    public float getElapsed() {
         return elapsed;
     }
 
-    protected float getProgress() {
+    public float getProgress() {
         return elapsed / interval;
     }
 
