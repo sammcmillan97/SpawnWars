@@ -20,7 +20,7 @@ public class EconomyBuildingTest {
     void setUp() {
         team = new Team(null, 0, 0, 0, 0);
         EconomyBuildingType economyBuildingType = new EconomyBuildingType(0, 0, 0, 0, null, 10, 10);
-        economyBuilding = new EconomyBuilding(null, team, economyBuildingType);
+        economyBuilding = new EconomyBuilding(0, 0, team, economyBuildingType, 0);
     } 
 
     @Test
