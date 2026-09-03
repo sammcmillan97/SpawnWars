@@ -6,7 +6,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.Array;
+import com.sam.game.entity.Building;
 import com.sam.game.entity.Entity;
+import com.sam.game.world.WorldMap;
 
 
 public class GameContext {
@@ -15,10 +17,11 @@ public class GameContext {
     private Array<Entity> entityArray;
     public Array<Entity> deathBuffer;
     protected Map<Integer, Team> teams;
+    public WorldMap map;
 
     public Texture whitePixel;
 
-    public GameContext() {
+    public GameContext(int cellSize, float worldWidth, float worldHeight) {
         spawnBuffer = new Array<>();
         entityArray = new Array<>();
         deathBuffer = new Array<>();
@@ -29,7 +32,9 @@ public class GameContext {
         pixmap.fill();
         whitePixel = new Texture(pixmap);
 
+        map = new WorldMap(cellSize, (int) worldWidth / cellSize, (int) worldHeight /cellSize);
     }
+
 
     public void addTeam(Team team) {
         teams.put(team.getTeamNumber(), team);
@@ -55,6 +60,13 @@ public class GameContext {
     }
 
     public void removeDeadEntityAndClearBuffer() {
+        for (int i =0; i < deathBuffer.size; i++) {
+            Entity deadEntity = deathBuffer.get(i);
+            if (deadEntity instanceof Building) {
+                Building b = (Building) deadEntity;
+                this.map.clearFootprint(b.getOriginColumn(), b.getOriginRow(), b.getWidthInCells(), b.getHeightInCells());
+            }
+        }
         entityArray.removeAll(deathBuffer, true);
         deathBuffer.clear();
     }

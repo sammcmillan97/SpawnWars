@@ -1,20 +1,19 @@
 package com.sam.game.entity;
 
-import com.badlogic.gdx.math.Vector2;
 import com.sam.game.GameContext;
 import com.sam.game.Team;
 import com.sam.game.content.EconomyBuildingType;
 import com.sam.game.util.IntervalTimer;
 
-public class EconomyBuilding extends Entity { 
+public class EconomyBuilding extends Building { 
 
     private IntervalTimer goldTimer;
     private float goldAmount;
 
-    public EconomyBuilding(Vector2 position,Team team, EconomyBuildingType buildingType) {
-        super(position, buildingType.getWidth(), buildingType.getHeight(), team, buildingType.getMaxHealth(), buildingType.getTexture());
-        this.goldAmount = buildingType.getGoldAmount();
-        goldTimer = new IntervalTimer(buildingType.getGoldInterval());
+    public EconomyBuilding(int originColumn, int originRow, Team team, EconomyBuildingType type, int cellSize) {
+        super(originColumn, originRow, team, type, cellSize);
+        this.goldAmount = type.getGoldAmount();
+        goldTimer = new IntervalTimer(type.getGoldInterval());
     }
 
     @Override

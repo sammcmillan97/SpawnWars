@@ -8,8 +8,8 @@ public class SpawnBuildingType extends BuildingType {
 
     private final UnitType unitType;  
 
-    public SpawnBuildingType(float width, float height, float maxHealth, float cost, Texture texture, float spwanInterval, UnitType unitType) {
-        super(width, height, maxHealth, cost, texture);
+    public SpawnBuildingType(int widthInCells, int heightInCells, float maxHealth, float cost, Texture texture, float spwanInterval, UnitType unitType) {
+        super(widthInCells, heightInCells, maxHealth, cost, texture);
         this.spawnInterval = spwanInterval;
         this.unitType = unitType;
     }

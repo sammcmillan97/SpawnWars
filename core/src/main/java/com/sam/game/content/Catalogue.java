@@ -49,22 +49,22 @@ public class Catalogue {
     }
 
     private void buildCastle() {
-        float width = 100;
-        float height = 100;
+        int widthInCells = 10;
+        int heightInCells = 10;
         float maxHealth = 500;
-        float buildCost = 400;
+        float buildCost = 100;
         float spawnInterval = 10;
-        this.castleType = new SpawnBuildingType(width, height, maxHealth, buildCost, castleTexture, spawnInterval, knightType);
+        this.castleType = new SpawnBuildingType(widthInCells, heightInCells, maxHealth, buildCost, castleTexture, spawnInterval, knightType);
     }
 
     private void buildMine() {
-        float width = 100;
-        float height = 100;
+        int widthInCells = 10;
+        int heightInCells = 10;
         float maxHealth = 300;
         float buildCost = 600;
         float goldAmount = 10;
         float goldInterval = 10;
-        this.mineType = new EconomyBuildingType(width, height, maxHealth, buildCost, mineTexture, goldInterval, goldAmount);
+        this.mineType = new EconomyBuildingType(widthInCells, heightInCells, maxHealth, buildCost, mineTexture, goldInterval, goldAmount);
     }
 
 

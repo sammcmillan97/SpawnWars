@@ -8,15 +8,15 @@ import com.sam.game.content.SpawnBuildingType;
 import com.sam.game.content.UnitType;
 import com.sam.game.util.IntervalTimer;
 
-public class SpawnBuilding extends Entity {
+public class SpawnBuilding extends Building {
 
     private IntervalTimer spawnTimer;
     private UnitType unitType;
 
-    public SpawnBuilding(Vector2 position, Team team, SpawnBuildingType buildingType) {
-        super(position, buildingType.getWidth(), buildingType.getHeight(), team, buildingType.getMaxHealth(), buildingType.getTexture());
-        this.spawnTimer = new IntervalTimer(buildingType.getSpawnInterval());
-        this.unitType = buildingType.getUnitType();
+    public SpawnBuilding(int originColumn, int originRow, Team team, SpawnBuildingType type, int cellSize) {
+        super(originColumn, originRow, team, type, cellSize);
+        this.spawnTimer = new IntervalTimer(type.getSpawnInterval());
+        this.unitType = type.getUnitType();
     }
 
     @Override

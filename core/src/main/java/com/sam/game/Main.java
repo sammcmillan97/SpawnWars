@@ -7,15 +7,18 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.sam.game.content.Catalogue;
+import com.sam.game.content.BuildingType;
 import com.sam.game.entity.EconomyBuilding;
 import com.sam.game.entity.Entity;
 import com.sam.game.entity.SpawnBuilding;
+import com.sam.game.world.WorldMap;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
@@ -36,10 +39,17 @@ public class Main extends ApplicationAdapter {
     public static final float PASSIVE_GOLD = 10;
     public static final float PASSIVE_GOLD_INTERVAL = 10;
 
-    //Player control
+    public static final int CELL_SIZE = 10;
+    public static final float WORLD_WIDTH = 1000;
+    public static final float WORLD_HEIGHT = 1000;
+
+    //Players team
     public Team player;
 
     private BitmapFont font;
+
+    private boolean buildMenuOpen = false;
+    private BuildingType pendingBuilding = null;
 
     //Runs once 
     @Override
@@ -47,12 +57,12 @@ public class Main extends ApplicationAdapter {
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
         camera.position.set(400, 240, 0);
-        viewPort = new FitViewport(2000, 2000, camera);
+        viewPort = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
 
         font = new BitmapFont();          // built-in 15px white Arial
         font.getData().setScale(2f);
 
-        gameContext = new GameContext();
+        gameContext = new GameContext(CELL_SIZE, WORLD_WIDTH, WORLD_HEIGHT);
         catalogue = new Catalogue();
 
         //In future build gamesetup screen to determine these values
@@ -62,10 +72,10 @@ public class Main extends ApplicationAdapter {
         gameContext.addTeam(player);
         gameContext.addTeam(playerTwo);
 
-        SpawnBuilding playerCastle = new SpawnBuilding(new Vector2(200, 200), player, catalogue.castleType);
-        EconomyBuilding playerMine = new EconomyBuilding(new Vector2(300, 300), player, catalogue.mineType); 
+        SpawnBuilding playerCastle = new SpawnBuilding(1, 1, player, catalogue.castleType, gameContext.map.getCellSize());
+        EconomyBuilding playerMine = new EconomyBuilding(30, 30, player, catalogue.mineType, gameContext.map.getCellSize()); 
 
-        SpawnBuilding enemyCastle = new SpawnBuilding(new Vector2(600, 600), playerTwo, catalogue.castleType); 
+        SpawnBuilding enemyCastle = new SpawnBuilding(60, 60, playerTwo, catalogue.castleType, gameContext.map.getCellSize()); 
 
         gameContext.addToEntityArray(playerMine);
         gameContext.addToEntityArray(playerCastle);
@@ -102,12 +112,42 @@ public class Main extends ApplicationAdapter {
     //To be abstracted
     public void playerControl(GameContext gameContext) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
-            Vector2 buildingPosition = viewPort.unproject(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
-            if (player.spendGold(catalogue.castleType.getCost())) {
-                gameContext.spawnBuffer.add(new SpawnBuilding(buildingPosition, player, catalogue.castleType));
-            }
-
+            buildMenuOpen = true;
         }
+
+        if (buildMenuOpen) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
+                pendingBuilding = catalogue.castleType;
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+                pendingBuilding = catalogue.mineType;
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                buildMenuOpen = false;
+                pendingBuilding = null;
+            }
+            if (pendingBuilding != null && Gdx.input.justTouched()) {
+                GridPoint2 origin = originCellUnderMouse(pendingBuilding, gameContext.map);
+                boolean canPlace  = gameContext.map.canPlace(origin.x, origin.y, origin.x + pendingBuilding.getWidthInCells(), origin.y + pendingBuilding.getHeightInCells()); 
+                if (canPlace && player.spendGold(pendingBuilding.getCost())) {
+                    SpawnBuilding building = new SpawnBuilding(origin.x, origin.y, player, catalogue.castleType, gameContext.map.getCellSize());
+                    gameContext.spawnBuffer.add(building);
+                    gameContext.map.placeBuilding(origin.x, origin.y, origin.x + pendingBuilding.getWidthInCells(), origin.y + pendingBuilding.getHeightInCells(), building);
+                }
+                // gameContext.map.printGrid();
+            }
+        }
+    }
+
+    private GridPoint2 originCellUnderMouse(BuildingType type, WorldMap map) {
+        Vector2 world = viewPort.unproject(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+
+        int cursorColumn = map.toCell(world.x);
+        int cursorRow    = map.toCell(world.y);
+
+
+        return new GridPoint2(cursorColumn - type.getWidthInCells()  / 2,
+                            cursorRow    - type.getHeightInCells() / 2);
     }
 
     //Every frame 
@@ -140,6 +180,16 @@ public class Main extends ApplicationAdapter {
         entities = gameContext.getEntityArray();
         
         batch.begin();
+        if (pendingBuilding != null) {
+            GridPoint2 origin = originCellUnderMouse(pendingBuilding, gameContext.map);
+            boolean valid  = gameContext.map.canPlace(origin.x, origin.y, origin.x + pendingBuilding.getWidthInCells(), origin.y + pendingBuilding.getHeightInCells());
+            batch.setColor(valid ? Color.GREEN : Color.RED);   
+            batch.draw(gameContext.whitePixel,
+                    origin.x * gameContext.map.getCellSize(), origin.y * gameContext.map.getCellSize(),
+                    pendingBuilding.getWidthInCells()  * gameContext.map.getCellSize(),
+                    pendingBuilding.getHeightInCells() * gameContext.map.getCellSize());
+            batch.setColor(Color.WHITE);
+        }
         for (int i = 0; i < entities.size; i++) {
             entities.get(i).render(batch, gameContext);
         }

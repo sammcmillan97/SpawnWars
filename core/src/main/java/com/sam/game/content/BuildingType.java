@@ -4,26 +4,26 @@ import com.badlogic.gdx.graphics.Texture;
 
 public class BuildingType {
 
-    private final float width;
-    private final float height;
+    private final int widthInCells;
+    private final int heightInCells;
     private final float maxHealth;
     private final float cost;
     private final Texture texture;
 
-    public BuildingType(float width, float height, float maxHealth, float cost, Texture texture) {
-        this.width = width;
-        this.height = height;
+    public BuildingType(int widthInCells, int heightInCells, float maxHealth, float cost, Texture texture) {
+        this.widthInCells = widthInCells;
+        this.heightInCells = heightInCells;
         this.maxHealth = maxHealth;
         this.cost = cost;
         this.texture = texture;
     }
 
-    public float getWidth() {
-        return this.width;
+    public int getWidthInCells() {
+        return this.widthInCells;
     }
 
-    public float getHeight() {
-        return this.height;
+    public int getHeightInCells() {
+        return this.heightInCells;
     }
 
     public float getMaxHealth() {
