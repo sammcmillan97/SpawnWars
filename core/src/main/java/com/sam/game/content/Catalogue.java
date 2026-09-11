@@ -9,13 +9,15 @@ public class Catalogue {
 
     public List<Texture> textures;
 
-    public SpawnBuildingType castleType;
+    public BuildingType castleType;
+    public SpawnBuildingType barracksType;
     public EconomyBuildingType mineType;
-    public UnitType knightType;
+    public UnitType footmanType;
 
     private Texture castleTexture;
-    private Texture knightTexture;
+    private Texture footmanTexture;
     private Texture mineTexture;
+    private Texture barracksTexture;
 
     public Catalogue() {
         textures = new ArrayList<Texture>();
@@ -29,15 +31,16 @@ public class Catalogue {
     }
 
     private void buildUnits() {
-        buildKnight();
+        buildFootman();
     }
 
     private void buildBuildings() {
-        buildCastle();
+        buildBarracks();
         buildMine();
+        buildCastle();
     }
 
-    private void buildKnight() {
+    private void buildFootman() {
         float width = 30;
         float height = 30;
         float maxHealth = 50;
@@ -45,21 +48,21 @@ public class Catalogue {
         float damage = 10;
         float range = 10;
         float attackSpeed = 0.5f;
-        this.knightType = new UnitType(width, height, maxHealth, knightTexture, movementSpeed, damage, range, attackSpeed);
+        this.footmanType = new UnitType(width, height, maxHealth, footmanTexture, movementSpeed, damage, range, attackSpeed);
     }
 
-    private void buildCastle() {
-        int widthInCells = 10;
-        int heightInCells = 10;
+    private void buildBarracks() {
+        int widthInCells = 6;
+        int heightInCells = 6;
         float maxHealth = 500;
         float buildCost = 100;
         float spawnInterval = 10;
-        this.castleType = new SpawnBuildingType(widthInCells, heightInCells, maxHealth, buildCost, castleTexture, spawnInterval, knightType);
+        this.barracksType = new SpawnBuildingType(widthInCells, heightInCells, maxHealth, buildCost, barracksTexture, spawnInterval, footmanType);
     }
 
     private void buildMine() {
-        int widthInCells = 10;
-        int heightInCells = 10;
+        int widthInCells = 6;
+        int heightInCells = 6;
         float maxHealth = 300;
         float buildCost = 600;
         float goldAmount = 10;
@@ -67,14 +70,24 @@ public class Catalogue {
         this.mineType = new EconomyBuildingType(widthInCells, heightInCells, maxHealth, buildCost, mineTexture, goldInterval, goldAmount);
     }
 
+    private void buildCastle() {
+        int widthInCells = 12;
+        int heightInCells = 12;
+        float maxHealth = 1000;
+        float buildCost = 0;
+        this.castleType = new BuildingType(widthInCells, heightInCells, maxHealth, buildCost, castleTexture);
+    }
+
 
     private void loadTextures() {
         castleTexture = new Texture("castle.png");
         textures.add(castleTexture);
-        knightTexture = new Texture("knight.png");
-        textures.add(knightTexture);
+        footmanTexture = new Texture("footman.png");
+        textures.add(footmanTexture);
         mineTexture = new Texture("mine.png");
         textures.add(mineTexture);
+        barracksTexture = new Texture("barracks.png");
+        textures.add(barracksTexture);
     }
 
     public void dispose() {

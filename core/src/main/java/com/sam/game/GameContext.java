@@ -64,11 +64,18 @@ public class GameContext {
             Entity deadEntity = deathBuffer.get(i);
             if (deadEntity instanceof Building) {
                 Building b = (Building) deadEntity;
-                this.map.clearFootprint(b.getOriginColumn(), b.getOriginRow(), b.getWidthInCells(), b.getHeightInCells());
+                this.map.clearFootprint(b);
             }
         }
         entityArray.removeAll(deathBuffer, true);
         deathBuffer.clear();
+    }
+
+    public void addBuilding(Building building) {
+        if (building.getTeam().canAfford(building.getBuildingCost()) && this.map.placeBuilding(building)) {
+            building.getTeam().spendGold(building.getBuildingCost());
+            this.spawnBuffer.add(building);
+        }
     }
 
     public Array<Entity> getEntityArray() {

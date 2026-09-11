@@ -1,7 +1,10 @@
 package com.sam.game.world;
 
+import java.util.Vector;
+
 import com.badlogic.gdx.math.MathUtils;
-import com.sam.game.entity.Entity;
+import com.badlogic.gdx.math.Vector2;
+import com.sam.game.entity.Building;
 
 public class WorldMap {
 
@@ -48,6 +51,13 @@ public class WorldMap {
         return cell;
     }
 
+    public Vector2 toWorldUnit(int row, int column) {
+        float x = (column + 0.5f) * cellSize;
+        float y = (row + 0.5f) * cellSize;
+
+        return new Vector2(x, y);
+    }
+
     private boolean outBounds(int column, int row) {
         return (column < 0 || column >= grid[0].length || row  < 0 || row >= grid.length);
     }
@@ -68,21 +78,16 @@ public class WorldMap {
         return true;
     }
 
-    public boolean placeBuilding(int startingColumn, int startingRow, int widthInCells, int heightInCells, Entity building) {
-        int finishingRow = startingRow + heightInCells;
-        int finishingColumn = startingColumn + widthInCells;
-        System.out.println("place building");
-        System.out.println("starting column: " + startingColumn);
-        System.out.println("starting row: " + startingRow);
-        System.out.println("finishingRow: " + finishingRow);
-        System.out.println("finshing column: " +  finishingColumn);
+    public boolean placeBuilding(Building building) {
+        int finishingRow = building.getOriginRow() + building.getHeightInCells() - 1; //inclusive
+        int finishingColumn = building.getOriginColumn() + building.getWidthInCells() - 1; //inclusive
 
-        if (!canPlace(startingColumn, startingRow, finishingColumn, finishingRow)) {
+        if (!canPlace(building.getOriginColumn(), building.getOriginRow(), finishingColumn, finishingRow)) {
             return false;
         }
 
-        for(int row = startingRow; row <= finishingRow; row++) {
-            for(int column = startingColumn; column <= finishingColumn; column++) {
+        for(int row = building.getOriginRow(); row <= finishingRow; row++) {
+            for(int column = building.getOriginColumn(); column <= finishingColumn; column++) {
                 System.out.println("row: " + row + " column: " + column);
                 grid[row][column].setOccupant(building);
             }
@@ -90,12 +95,12 @@ public class WorldMap {
         return true;
     }
 
-    public boolean clearFootprint(int startingColumn, int startingRow, int widthInCells, int heightInCells) {
-        int finishingRow = startingRow + heightInCells;
-        int finishingColumn = startingColumn + widthInCells;
+    public boolean clearFootprint(Building building) {
+        int finishingRow = building.getOriginRow() + building.getHeightInCells() - 1; //inclusive
+        int finishingColumn = building.getOriginColumn() + building.getWidthInCells() -1; //inclusive
 
-        for(int row = startingRow; row <= finishingRow; row++) {
-            for(int column = startingColumn; column <= finishingColumn; column++) {
+        for(int row = building.getOriginRow(); row <= finishingRow; row++) {
+            for(int column = building.getOriginColumn(); column <= finishingColumn; column++) {
                 grid[row][column].removeOccupant();
             }
         }

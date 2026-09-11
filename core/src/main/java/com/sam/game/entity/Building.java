@@ -1,22 +1,26 @@
 package com.sam.game.entity;
 
 import com.badlogic.gdx.math.Vector2;
+import com.sam.game.GameContext;
 import com.sam.game.Team;
 import com.sam.game.content.BuildingType;
 
-public abstract class Building extends Entity {
+public class Building extends Entity {
 
     protected final int originColumn;
     protected final int originRow;
     protected final int widthInCells;
     protected final int heightInCells;
 
-    protected Building(int originColumn, int originRow, Team team, BuildingType type, int cellSize) {
+    protected final float buildingCost;
+
+    public Building(int originColumn, int originRow, Team team, BuildingType type, int cellSize) {
         super(centreOf(originColumn, originRow, type, cellSize), type.getWidthInCells()  * cellSize, type.getHeightInCells() * cellSize, team, type.getMaxHealth(), type.getTexture());
         this.originColumn = originColumn;
         this.originRow = originRow;
         this.widthInCells = type.getWidthInCells();
-        this.heightInCells = type.getWidthInCells();
+        this.heightInCells = type.getHeightInCells();
+        this.buildingCost = type.getCost();
     }
 
     private static Vector2 centreOf(int originColumn, int originRow, BuildingType type, int cellSize) {
@@ -29,5 +33,11 @@ public abstract class Building extends Entity {
     public int getOriginRow()     { return originRow; }
     public int getWidthInCells()  { return widthInCells; }
     public int getHeightInCells() { return heightInCells; }
+    public float getBuildingCost() { return buildingCost; }
+
+    @Override
+    public void update(float delta, GameContext gameContext) {
+        //DO nothing
+    }
     
 }

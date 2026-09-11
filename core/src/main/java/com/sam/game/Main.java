@@ -15,9 +15,9 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.sam.game.content.Catalogue;
 import com.sam.game.content.BuildingType;
-import com.sam.game.entity.EconomyBuilding;
 import com.sam.game.entity.Entity;
 import com.sam.game.entity.SpawnBuilding;
+import com.sam.game.entity.Building;
 import com.sam.game.world.WorldMap;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -36,7 +36,7 @@ public class Main extends ApplicationAdapter {
     public static final int PLAYER_ONE = 1;
     public static final int Player_TWO  = 2;
     public static final float STARTING_GOLD = 500;
-    public static final float PASSIVE_GOLD = 10;
+    public static final float PASSIVE_GOLD = 100;
     public static final float PASSIVE_GOLD_INTERVAL = 10;
 
     public static final int CELL_SIZE = 10;
@@ -68,18 +68,17 @@ public class Main extends ApplicationAdapter {
         //In future build gamesetup screen to determine these values
         player = new Team(Color.RED, PLAYER_ONE, STARTING_GOLD, PASSIVE_GOLD, PASSIVE_GOLD_INTERVAL);
         Team playerTwo = new Team(Color.BLUE, Player_TWO, STARTING_GOLD, PASSIVE_GOLD, PASSIVE_GOLD_INTERVAL);
-        
         gameContext.addTeam(player);
         gameContext.addTeam(playerTwo);
 
-        SpawnBuilding playerCastle = new SpawnBuilding(1, 1, player, catalogue.castleType, gameContext.map.getCellSize());
-        EconomyBuilding playerMine = new EconomyBuilding(30, 30, player, catalogue.mineType, gameContext.map.getCellSize()); 
+        Building playerCastle = new Building(1, 1, player, catalogue.castleType, gameContext.map.getCellSize());
+        Building enemyCastle = new Building(60, 60, playerTwo, catalogue.castleType, gameContext.map.getCellSize());
+        
+        Building enemyBarracks = new SpawnBuilding(50, 50, playerTwo, catalogue.barracksType, gameContext.map.getCellSize());
 
-        SpawnBuilding enemyCastle = new SpawnBuilding(60, 60, playerTwo, catalogue.castleType, gameContext.map.getCellSize()); 
-
-        gameContext.addToEntityArray(playerMine);
-        gameContext.addToEntityArray(playerCastle);
-        gameContext.addToEntityArray(enemyCastle);
+        gameContext.addBuilding(playerCastle);
+        gameContext.addBuilding(enemyCastle);
+        gameContext.addBuilding(enemyBarracks);
     }
 
     public void cameraControl(OrthographicCamera camera, float delta) {
@@ -117,7 +116,7 @@ public class Main extends ApplicationAdapter {
 
         if (buildMenuOpen) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
-                pendingBuilding = catalogue.castleType;
+                pendingBuilding = catalogue.barracksType;
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
                 pendingBuilding = catalogue.mineType;
@@ -127,14 +126,11 @@ public class Main extends ApplicationAdapter {
                 pendingBuilding = null;
             }
             if (pendingBuilding != null && Gdx.input.justTouched()) {
-                GridPoint2 origin = originCellUnderMouse(pendingBuilding, gameContext.map);
-                boolean canPlace  = gameContext.map.canPlace(origin.x, origin.y, origin.x + pendingBuilding.getWidthInCells(), origin.y + pendingBuilding.getHeightInCells()); 
-                if (canPlace && player.spendGold(pendingBuilding.getCost())) {
-                    SpawnBuilding building = new SpawnBuilding(origin.x, origin.y, player, catalogue.castleType, gameContext.map.getCellSize());
-                    gameContext.spawnBuffer.add(building);
-                    gameContext.map.placeBuilding(origin.x, origin.y, origin.x + pendingBuilding.getWidthInCells(), origin.y + pendingBuilding.getHeightInCells(), building);
-                }
-                // gameContext.map.printGrid();
+
+                GridPoint2 origin = originCellUnderMouse(pendingBuilding, gameContext.map);  
+                SpawnBuilding building = new SpawnBuilding(origin.x, origin.y, player, catalogue.barracksType, gameContext.map.getCellSize());
+                gameContext.addBuilding(building);
+
             }
         }
     }
@@ -182,7 +178,7 @@ public class Main extends ApplicationAdapter {
         batch.begin();
         if (pendingBuilding != null) {
             GridPoint2 origin = originCellUnderMouse(pendingBuilding, gameContext.map);
-            boolean valid  = gameContext.map.canPlace(origin.x, origin.y, origin.x + pendingBuilding.getWidthInCells(), origin.y + pendingBuilding.getHeightInCells());
+            boolean valid  = gameContext.map.canPlace(origin.x, origin.y, origin.x + pendingBuilding.getWidthInCells() - 1, origin.y + pendingBuilding.getHeightInCells() - 1);
             batch.setColor(valid ? Color.GREEN : Color.RED);   
             batch.draw(gameContext.whitePixel,
                     origin.x * gameContext.map.getCellSize(), origin.y * gameContext.map.getCellSize(),

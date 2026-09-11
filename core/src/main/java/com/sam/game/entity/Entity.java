@@ -68,4 +68,8 @@ public abstract class Entity {
     protected void takeDamage(float damage) {
         health-= damage;
     }
+
+    public Team getTeam() {
+        return this.team;
+    }
 }
