@@ -2,12 +2,17 @@ package com.sam.game.world;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.Duration;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.badlogic.gdx.math.Vector2;
 import com.sam.game.content.BuildingType;
 import com.sam.game.entity.Building;
 
@@ -17,6 +22,8 @@ public class WorldMapTest {
     private static final int WIDTH_IN_CELLS = 20;
     private static final int HEIGHT_IN_CELLS = 20;
 
+    private static final float EPSILON = 0.0001f;
+
     private WorldMap map;
 
     @BeforeEach
@@ -24,10 +31,19 @@ public class WorldMapTest {
         map = new WorldMap(CELL_SIZE, WIDTH_IN_CELLS, HEIGHT_IN_CELLS);
     }
 
-    /** A texture-free building, so these tests need no GL context. */
     private Building building(int originColumn, int originRow, int widthInCells, int heightInCells) {
         BuildingType type = new BuildingType(widthInCells, heightInCells, 100, 0, null);
         return new Building(originColumn, originRow, null, type, CELL_SIZE);
+    }
+
+    // Fills every free cell in the square around a centre cell with a 1x1 blocker.
+    // Cells that are already occupied (e.g. the building at the centre) are just rejected.
+    private void blockSquareAround(int centreColumn, int centreRow, int radius) {
+        for (int row = centreRow - radius; row <= centreRow + radius; row++) {
+            for (int column = centreColumn - radius; column <= centreColumn + radius; column++) {
+                map.placeBuilding(building(column, row, 1, 1));
+            }
+        }
     }
 
     @Test
@@ -138,4 +154,86 @@ public class WorldMapTest {
         assertTrue(wide.canPlace(8, 2, 9, 3));    // column 8 and row 2 both exist
         assertFalse(wide.canPlace(2, 8, 3, 9));   // row 8 does not
     }
+
+    @Test 
+    @DisplayName("Get nearest avaliable spwan point, all cells surronding the building are free")
+    void getNearestAvaliableSpawnPointAllCellsFree() {
+        Building building = building(1, 1, 1, 1);
+        map.placeBuilding(building);
+
+        Vector2 expectedSpwanPoint = map.toWorldUnit(1, 2);
+        Vector2 actualSpawnPoint = map.getNearestAvaliableSpawnPoint(building);
+
+        assertEquals(expectedSpwanPoint.x, actualSpawnPoint.x, EPSILON);
+        assertEquals(expectedSpwanPoint.y, actualSpawnPoint.y, EPSILON);
+
+    }
+
+    @Test
+    @DisplayName("Get nearest avaliable spwan point, building on top right boundary")
+    void getNearestAvaliableSpawnPointBuildingOnTopRightBoundary() {
+        Building building = building(19, 0, 1, 1);
+        map.placeBuilding(building);
+
+        Vector2 expectedSpwanPoint = map.toWorldUnit(1, 19);
+        Vector2 actualSpawnPoint = map.getNearestAvaliableSpawnPoint(building);
+
+        assertEquals(expectedSpwanPoint.x, actualSpawnPoint.x, EPSILON);
+        assertEquals(expectedSpwanPoint.y, actualSpawnPoint.y, EPSILON);
+    }
+
+    @Test
+    @DisplayName("Get nearest avaliable spwan point, default point occupied")
+    void getNearestAvaliableSpawnPointBuildingAllDefaultSpotsInvalid() {
+        Building spawnBuilding = building(2, 2, 1, 1);
+        
+        Building rightBuilding = building(3, 2, 1, 1);
+
+        map.placeBuilding(spawnBuilding);
+        map.placeBuilding(rightBuilding);
+
+
+        //top left diagonal to building
+        Vector2 expectedSpwanPoint = map.toWorldUnit(1, 1);
+        Vector2 actualSpawnPoint = map.getNearestAvaliableSpawnPoint(spawnBuilding);
+
+        assertEquals(expectedSpwanPoint.x, actualSpawnPoint.x, EPSILON);
+        assertEquals(expectedSpwanPoint.y, actualSpawnPoint.y, EPSILON);
+    }
+
+    @Test
+    @DisplayName("Get nearest avaliable spawn point, first ring full, finds the only gap in the second ring")
+    void getNearestAvaliableSpawnPointFindsGapInSecondRing() {
+        Building spawnBuilding = building(10, 10, 1, 1);
+        map.placeBuilding(spawnBuilding);
+
+        // Rings 1 and 2 are columns/rows 8..12. Block all of it, then open one cell
+        // on the right side of ring 2, part way along rather than at its starting corner.
+        blockSquareAround(10, 10, 2);
+        map.clearFootprint(building(12, 10, 1, 1));
+
+        Vector2 expectedSpawnPoint = map.toWorldUnit(10, 12);
+        Vector2 actualSpawnPoint = map.getNearestAvaliableSpawnPoint(spawnBuilding);
+
+        assertEquals(expectedSpawnPoint.x, actualSpawnPoint.x, EPSILON);
+        assertEquals(expectedSpawnPoint.y, actualSpawnPoint.y, EPSILON);
+    }
+
+    @Test
+    @DisplayName("Get nearest avaliable spawn point, every searched ring full, returns null instead of hanging")
+    void getNearestAvaliableSpawnPointFullyBoxedInReturnsNull() {
+        Building spawnBuilding = building(10, 10, 1, 1);
+        map.placeBuilding(spawnBuilding);
+
+        // Block every ring the search covers. The ring just beyond is left free:
+        // the search must give up at its limit rather than reach further out.
+        blockSquareAround(10, 10, WorldMap.MAX_SPAWN_SEARCH_RINGS);
+
+        // Preemptive, so a regression back to an infinite loop fails the test instead of freezing the run.
+        Vector2 spawnPoint = assertTimeoutPreemptively(Duration.ofSeconds(1),
+                () -> map.getNearestAvaliableSpawnPoint(spawnBuilding));
+
+        assertNull(spawnPoint);
+    }
+
 }

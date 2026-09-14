@@ -41,8 +41,8 @@ public class Catalogue {
     }
 
     private void buildFootman() {
-        float width = 30;
-        float height = 30;
+        float width = 10;
+        float height = 10;
         float maxHealth = 50;
         float movementSpeed = 50;
         float damage = 10;

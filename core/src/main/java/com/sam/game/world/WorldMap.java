@@ -8,6 +8,8 @@ import com.sam.game.entity.Building;
 
 public class WorldMap {
 
+    static final int MAX_SPAWN_SEARCH_RINGS = 5;
+
     private Cell[][] grid;
 
     private int cellSize;
@@ -106,5 +108,79 @@ public class WorldMap {
         }
 
         return true;
+    }
+
+    public Vector2 getNearestAvaliableSpawnPoint(Building building) {
+
+        //try the default point first (cell left middle to center of building)
+        Vector2 currentCenterWorldUnits = building.getPosition();
+        int defaultRow = toCell(currentCenterWorldUnits.y);
+        int defaultColumn = toCell(currentCenterWorldUnits.x + building.getWidth() / 2);
+
+        if (!outBounds(defaultColumn, defaultRow) && grid[defaultRow][defaultColumn].IsEmpty()) {
+            return toWorldUnit(defaultRow, defaultColumn);
+        }
+        
+        //Begin Perimeter search starting top left 
+        int currentColumn = building.getOriginColumn() - 1;
+        int currentRow = building.getOriginRow() - 1;
+        int i = 0;
+        int steps = 0;
+        int lengthOfWidthSearch = building.getWidthInCells() + 1;
+        int lengthOfHeightSearch = building.getHeightInCells() + 1;
+
+        //Check perimeter max five cells away
+        while(i < MAX_SPAWN_SEARCH_RINGS) {
+            
+            //go right
+            steps = lengthOfWidthSearch;
+            while(steps > 0) {
+                if (!outBounds(currentColumn, currentRow) && grid[currentRow][currentColumn].IsEmpty()) {
+                    return toWorldUnit(currentRow, currentColumn);
+                }
+                currentColumn++;
+                steps--;
+            }
+            
+            //go down
+            steps = lengthOfHeightSearch;
+            while(steps > 0) {
+                if (!outBounds(currentColumn, currentRow) && grid[currentRow][currentColumn].IsEmpty()) {
+                    return toWorldUnit(currentRow, currentColumn);
+                }
+                currentRow++;
+                steps--;
+            }
+
+            //go left 
+            steps = lengthOfWidthSearch;
+            while(steps > 0) {
+                if (!outBounds(currentColumn, currentRow) && grid[currentRow][currentColumn].IsEmpty()) {
+                    return toWorldUnit(currentRow, currentColumn);
+                }
+                currentColumn--;
+                steps--;
+            }
+
+            //go up
+            steps = lengthOfHeightSearch;
+            while(steps > 0) {
+                if (!outBounds(currentColumn, currentRow) && grid[currentRow][currentColumn].IsEmpty()) {
+                    return toWorldUnit(currentRow, currentColumn);
+                }
+                currentRow--;
+                steps--;
+            }
+
+            currentRow--;
+            currentColumn--;
+
+            lengthOfWidthSearch+= 2;
+            lengthOfHeightSearch+= 2;
+
+            i++;
+        }
+
+        return null;
     }
 }

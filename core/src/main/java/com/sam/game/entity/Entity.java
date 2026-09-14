@@ -72,4 +72,12 @@ public abstract class Entity {
     public Team getTeam() {
         return this.team;
     }
+
+    public Vector2 getPosition() {
+        return this.position;
+    }
+
+    public float getWidth() {
+        return this.width;
+    }
 }

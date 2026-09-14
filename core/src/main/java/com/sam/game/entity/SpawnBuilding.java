@@ -28,12 +28,11 @@ public class SpawnBuilding extends Building {
     }
 
     private void spawnUnit(Array<Entity> spawnBuffer, WorldMap map) {
-        //find nearest spawn point 
-        int startingColumn = this.originColumn - 1;
-        int startingRow = this.originRow - 1;
+        Vector2 spawnPoint = map.getNearestAvaliableSpawnPoint(this);
         
-
-        spawnBuffer.add(new Unit(new Vector2(this.position.x, this.position.y), this.team, this.unitType));
+        if (spawnPoint != null) {
+            spawnBuffer.add(new Unit(spawnPoint, this.team, this.unitType));
+        }
     }
 
 }
