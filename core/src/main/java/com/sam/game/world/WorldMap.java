@@ -1,5 +1,8 @@
 package com.sam.game.world;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.sam.game.entity.Building;
@@ -108,6 +111,21 @@ public class WorldMap {
             }
         }
         return true;
+    }
+
+    public List<Cell> getFootprint(Building building) {
+        List<Cell> footprint = new ArrayList<>();
+
+        int finishingRow = building.getOriginRow() + building.getHeightInCells() - 1;
+        int finishingColumn = building.getOriginColumn() + building.getWidthInCells() - 1;
+
+        for (int row = building.getOriginRow(); row <= finishingRow; row++) {
+            for (int column = building.getOriginColumn(); column <= finishingColumn; column++) {
+                footprint.add(grid[row][column]);
+            }
+        }
+
+        return footprint;
     }
 
     public boolean clearFootprint(Building building) {
