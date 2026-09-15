@@ -30,7 +30,7 @@ public class Cell {
         this.occupant = null;
     }
 
-    public boolean IsEmpty() {
+    public boolean isEmpty() {
         return occupant == null;
     }
 }

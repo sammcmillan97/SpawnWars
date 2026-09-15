@@ -82,10 +82,10 @@ public class Main extends ApplicationAdapter {
 
         if (gameContext.addBuilding(playerCastle)) {
             player.setCastle(playerCastle);
-        };
+        }
         
         if (gameContext.addBuilding(enemyCastle)) {
-            gameContext.addBuilding(enemyCastle);
+            playerTwo.setCastle(enemyCastle);
         }
 
         gameContext.addBuilding(enemyBarracks);

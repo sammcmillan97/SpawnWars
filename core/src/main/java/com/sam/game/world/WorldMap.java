@@ -1,10 +1,8 @@
 package com.sam.game.world;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.sam.game.entity.Building;
 
 public class WorldMap {
@@ -26,7 +24,7 @@ public class WorldMap {
 
         for (int h = 0; h < heightInCells; h++) {
             for (int w = 0; w < widthInCells; w++) {
-                grid[h][w] = new Cell();
+                grid[h][w] = new Cell(h, w);
             }
         }
     }
@@ -42,7 +40,7 @@ public class WorldMap {
     }
 
     public boolean isBlocked(int row, int column) {
-        return outBounds(row, column) || !grid[row][column].IsEmpty(); 
+        return outBounds(row, column) || !grid[row][column].isEmpty(); 
     }
 
     public void printGrid() {
@@ -50,7 +48,7 @@ public class WorldMap {
             System.out.print("[");
             
             for (int w = 0; w < grid[h].length; w++) {
-                if (grid[h][w].IsEmpty()) {
+                if (grid[h][w].isEmpty()) {
                     System.out.print("0");
                 } else {
                     System.out.print("x");
@@ -88,7 +86,7 @@ public class WorldMap {
 
         for(int row = startingRow; row <= finishingRow; row++) {
             for(int column = startingColumn; column <= finishingColumn; column++) {
-                if(!grid[row][column].IsEmpty()) {
+                if(!grid[row][column].isEmpty()) {
                     return false;
                 }
             }
@@ -113,8 +111,8 @@ public class WorldMap {
         return true;
     }
 
-    public List<Cell> getFootprint(Building building) {
-        List<Cell> footprint = new ArrayList<>();
+    public Array<Cell> getFootprint(Building building) {
+        Array<Cell> footprint = new Array<>();
 
         int finishingRow = building.getOriginRow() + building.getHeightInCells() - 1;
         int finishingColumn = building.getOriginColumn() + building.getWidthInCells() - 1;
@@ -148,7 +146,7 @@ public class WorldMap {
         int defaultRow = toCell(currentCenterWorldUnits.y);
         int defaultColumn = toCell(currentCenterWorldUnits.x + building.getWidth() / 2);
 
-        if (!outBounds(defaultColumn, defaultRow) && grid[defaultRow][defaultColumn].IsEmpty()) {
+        if (!outBounds(defaultRow, defaultColumn) && grid[defaultRow][defaultColumn].isEmpty()) {
             return toWorldUnit(defaultRow, defaultColumn);
         }
         
@@ -166,7 +164,7 @@ public class WorldMap {
             //go right
             steps = lengthOfWidthSearch;
             while(steps > 0) {
-                if (!outBounds(currentColumn, currentRow) && grid[currentRow][currentColumn].IsEmpty()) {
+                if (!outBounds(currentRow, currentColumn) && grid[currentRow][currentColumn].isEmpty()) {
                     return toWorldUnit(currentRow, currentColumn);
                 }
                 currentColumn++;
@@ -176,7 +174,7 @@ public class WorldMap {
             //go down
             steps = lengthOfHeightSearch;
             while(steps > 0) {
-                if (!outBounds(currentColumn, currentRow) && grid[currentRow][currentColumn].IsEmpty()) {
+                if (!outBounds(currentRow, currentColumn) && grid[currentRow][currentColumn].isEmpty()) {
                     return toWorldUnit(currentRow, currentColumn);
                 }
                 currentRow++;
@@ -186,7 +184,7 @@ public class WorldMap {
             //go left 
             steps = lengthOfWidthSearch;
             while(steps > 0) {
-                if (!outBounds(currentColumn, currentRow) && grid[currentRow][currentColumn].IsEmpty()) {
+                if (!outBounds(currentRow, currentColumn) && grid[currentRow][currentColumn].isEmpty()) {
                     return toWorldUnit(currentRow, currentColumn);
                 }
                 currentColumn--;
@@ -196,7 +194,7 @@ public class WorldMap {
             //go up
             steps = lengthOfHeightSearch;
             while(steps > 0) {
-                if (!outBounds(currentColumn, currentRow) && grid[currentRow][currentColumn].IsEmpty()) {
+                if (!outBounds(currentRow, currentColumn) && grid[currentRow][currentColumn].isEmpty()) {
                     return toWorldUnit(currentRow, currentColumn);
                 }
                 currentRow--;

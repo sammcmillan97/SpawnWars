@@ -5,67 +5,66 @@ import com.sam.game.entity.Building;
 
 public class FlowField {
 
+    private static final int[] ROW_OFFSETS = {1, 0, -1, 0};
+    private static final int[] COL_OFFSETS = {0, 1, 0, -1};
+
+    int[][] integration;
+
+    private final int width;
+    private final int height;
+
+    private final WorldMap map;
+
     public FlowField(WorldMap map, Array<Building> goals) {
-        int[][] integration = new int[map.getWidthInCells()][map.getHeightInCells()];
+        this.width = map.getWidthInCells();
+        this.height = map.getHeightInCells();
+        this.map = map;
+        buildIntegrationField(goals);
+    
+    }
+
+    private void buildIntegrationField(Array<Building> goals) {
+        
+        integration = new int[height][width];
         for (int i = 0; i < integration.length; i++) {
-            for (int j = 0; i < integration[0].length; j++) {
+            for (int j = 0; j < integration[0].length; j++) {
                 integration[i][j] = Integer.MAX_VALUE;
             }
         }
         int head = 0;
         int tail = 0;
 
-        int[] queue = new int[map.getWidthInCells() * map.getHeightInCells()];
+        int[] queue = new int[width * height];
 
         for(Building goal : goals) {
             for(Cell cell : map.getFootprint(goal)) {
                 integration[cell.getRow()][cell.getColumn()] = 0;
-                queue[tail++] = cell.getRow() * map.getWidthInCells() + cell.getColumn();
+                queue[tail++] = cell.getRow() * width + cell.getColumn();
             }
         }
 
         while(head < tail) {
             int currentIndex = queue[head++];
-            int currentRow = currentIndex / map.getWidthInCells();
-            int currentColumn = currentIndex % map.getWidthInCells();
-            int integrationValue = integration[currentRow][currentColumn];
-            int neighbourIntegrationValue = 0;
+            int currentRow = currentIndex / width;
+            int currentColumn = currentIndex % width;
+            int newIntegrationValue = integration[currentRow][currentColumn] + 1;
 
-            //Above 
-            if(!map.isBlocked(currentRow + 1, currentColumn)) {
-                neighbourIntegrationValue = integration[currentRow + 1][currentColumn];
-                if (neighbourIntegrationValue > integrationValue) {
-                    integration[currentRow + 1][currentColumn] = neighbourIntegrationValue + 1;
-                    queue[tail++] = (currentRow + 1) * map.getWidthInCells() + currentColumn;
+            for(int i = 0; i < ROW_OFFSETS.length; i++) {
+
+                int neighbourRow = currentRow + ROW_OFFSETS[i];
+                int neighbourColumn = currentRow + COL_OFFSETS[i];
+
+                if(!map.isBlocked(neighbourRow, neighbourColumn)) {
+                    if (integration[neighbourRow][neighbourColumn] > newIntegrationValue) {
+                        integration[neighbourRow][neighbourColumn] = newIntegrationValue;
+                        queue[tail++] = (neighbourRow) * width + neighbourColumn;
+                    }
                 }
             }
-            //Right
-            if(!map.isBlocked(currentRow, currentColumn + 1)) {
-                neighbourIntegrationValue = integration[currentRow][currentColumn + 1];
-                if (neighbourIntegrationValue > integrationValue) {
-                    integration[currentRow][currentColumn + 1] = neighbourIntegrationValue + 1;
-                    queue[tail++] = currentRow * map.getWidthInCells() + (currentColumn + 1);
-                }
-            }
-            //below
-            if(!map.isBlocked(currentRow - 1, currentColumn)) {
-                neighbourIntegrationValue = integration[currentRow - 1][currentColumn];
-                if (neighbourIntegrationValue > integrationValue) {
-                    integration[currentRow - 1][currentColumn] = neighbourIntegrationValue + 1;
-                    queue[tail++] = (currentRow - 1) * map.getWidthInCells() + currentColumn;
-                }
-            }
-            //left
-            if(!map.isBlocked(currentRow, currentColumn - 1)) {
-                neighbourIntegrationValue = integration[currentRow][currentColumn - 1];
-                if (neighbourIntegrationValue > integrationValue) {
-                    integration[currentRow][currentColumn - 1] = neighbourIntegrationValue + 1;
-                    queue[tail++] = currentRow * map.getWidthInCells() + (currentColumn - 1);
-                }
-            }
-        
         }
-        
+    }
 
+    public void rebuild(Array<Building> goals) {
+        buildIntegrationField(goals);
     }
 }
