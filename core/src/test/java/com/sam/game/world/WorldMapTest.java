@@ -236,4 +236,19 @@ public class WorldMapTest {
         assertNull(spawnPoint);
     }
 
+    @Test 
+    @DisplayName("Is blocked checked, building occupies given cell returns true")
+    void isBlockedBuildingOccupiesCell() {
+        Building building = building(1, 1, 1, 1);
+        map.placeBuilding(building);
+
+        assertTrue(map.isBlocked(1, 1));
+    }
+    
+    @Test
+    @DisplayName("Is blocked checked, column and row out bounds returns true")
+    void isBlockedCellOutOfBounds() {
+        assertTrue(map.isBlocked(-1, -1));
+    }
+
 }

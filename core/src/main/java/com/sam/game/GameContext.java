@@ -1,6 +1,7 @@
 package com.sam.game;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -51,8 +52,18 @@ public class GameContext {
     public void updateTeams(float delta) {
         for (Team team : teams.values()) {
             team.earnPassiveGold(delta);
+        }
     }
-}
+
+    public Array<Building> getEnemyCastles(Team team) {
+        Set<Integer> enemies = team.getEnemies();
+        Array<Building> enemyCastles = new Array<>();
+        for (int teamNumber : enemies) {
+            enemyCastles.add(teams.get(teamNumber).getCastle());
+        }
+        return enemyCastles;
+    }
+
 
     public void addBufferAndClearBuffer()  {
         entityArray.addAll(spawnBuffer);
@@ -71,11 +82,13 @@ public class GameContext {
         deathBuffer.clear();
     }
 
-    public void addBuilding(Building building) {
+    public boolean addBuilding(Building building) {
         if (building.getTeam().canAfford(building.getBuildingCost()) && this.map.placeBuilding(building)) {
             building.getTeam().spendGold(building.getBuildingCost());
             this.spawnBuffer.add(building);
+            return true;
         }
+        return false;
     }
 
     public Array<Entity> getEntityArray() {

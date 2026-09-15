@@ -68,16 +68,26 @@ public class Main extends ApplicationAdapter {
         //In future build gamesetup screen to determine these values
         player = new Team(Color.RED, PLAYER_ONE, STARTING_GOLD, PASSIVE_GOLD, PASSIVE_GOLD_INTERVAL);
         Team playerTwo = new Team(Color.BLUE, Player_TWO, STARTING_GOLD, PASSIVE_GOLD, PASSIVE_GOLD_INTERVAL);
+
         gameContext.addTeam(player);
         gameContext.addTeam(playerTwo);
+
+        player.addEnemy(playerTwo.getTeamNumber());
+        playerTwo.addEnemy(player.getTeamNumber());
 
         Building playerCastle = new Building(1, 1, player, catalogue.castleType, gameContext.map.getCellSize());
         Building enemyCastle = new Building(60, 60, playerTwo, catalogue.castleType, gameContext.map.getCellSize());
         
         Building enemyBarracks = new SpawnBuilding(50, 50, playerTwo, catalogue.barracksType, gameContext.map.getCellSize());
 
-        gameContext.addBuilding(playerCastle);
-        gameContext.addBuilding(enemyCastle);
+        if (gameContext.addBuilding(playerCastle)) {
+            player.setCastle(playerCastle);
+        };
+        
+        if (gameContext.addBuilding(enemyCastle)) {
+            gameContext.addBuilding(enemyCastle);
+        }
+
         gameContext.addBuilding(enemyBarracks);
     }
 
@@ -175,6 +185,7 @@ public class Main extends ApplicationAdapter {
 
         entities = gameContext.getEntityArray();
         
+        //Shows building outline goes green when building can be placed (to be abstracted)
         batch.begin();
         if (pendingBuilding != null) {
             GridPoint2 origin = originCellUnderMouse(pendingBuilding, gameContext.map);
@@ -191,7 +202,7 @@ public class Main extends ApplicationAdapter {
         }
         batch.end();
 
-        //Temp
+        //Temp HUD to show gold for each player used for debugging
         Matrix4 hudMatrix =new Matrix4();
         hudMatrix.setToOrtho2D(0, 0, viewPort.getWorldWidth(), viewPort.getWorldHeight());
         batch.setProjectionMatrix(hudMatrix);

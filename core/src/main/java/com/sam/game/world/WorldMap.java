@@ -1,7 +1,5 @@
 package com.sam.game.world;
 
-import java.util.Vector;
-
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.sam.game.entity.Building;
@@ -12,10 +10,14 @@ public class WorldMap {
 
     private Cell[][] grid;
 
-    private int cellSize;
+    private final int cellSize;
+    private final int widthInCells;
+    private final int heightInCells;
 
     public WorldMap(int cellSize, int widthInCells, int heightInCells) {
         this.cellSize = cellSize;
+        this.widthInCells = widthInCells;
+        this.heightInCells = heightInCells;
 
         grid = new Cell[heightInCells][widthInCells];
 
@@ -26,27 +28,39 @@ public class WorldMap {
         }
     }
 
+    public int getCellSize() { return cellSize; }
+
+    public int getWidthInCells() {
+        return widthInCells;
+    }
+
+    public int getHeightInCells() {
+        return heightInCells;
+    }
+
+    public boolean isBlocked(int row, int column) {
+        return outBounds(row, column) || !grid[row][column].IsEmpty(); 
+    }
+
     public void printGrid() {
     for (int h = 0; h < grid.length; h++) {
-        System.out.print("[");
-        
-        for (int w = 0; w < grid[h].length; w++) {
-            if (grid[h][w].IsEmpty()) {
-                System.out.print("0");
-            } else {
-                System.out.print("x");
-            }
+            System.out.print("[");
+            
+            for (int w = 0; w < grid[h].length; w++) {
+                if (grid[h][w].IsEmpty()) {
+                    System.out.print("0");
+                } else {
+                    System.out.print("x");
+                }
 
-            if (w < grid[h].length - 1) {
-                System.out.print(", ");
+                if (w < grid[h].length - 1) {
+                    System.out.print(", ");
+                }
             }
+            
+            System.out.println("]");
         }
-        
-        System.out.println("]");
     }
-}
-
-    public int getCellSize() { return cellSize; }
 
     public int toCell(float worldCoordinate)  {
         int cell = Math.floorDiv(MathUtils.floor(worldCoordinate), cellSize);
@@ -60,12 +74,12 @@ public class WorldMap {
         return new Vector2(x, y);
     }
 
-    private boolean outBounds(int column, int row) {
+    private boolean outBounds(int row, int column) {
         return (column < 0 || column >= grid[0].length || row  < 0 || row >= grid.length);
     }
 
     public boolean canPlace(int startingColumn, int startingRow, int finishingColumn, int finishingRow) {
-        if (outBounds(startingColumn, startingRow) || outBounds(finishingColumn, finishingRow)) {
+        if (outBounds(startingRow, startingColumn) || outBounds(finishingRow, finishingColumn)) {
             return false; 
         }
 
@@ -90,7 +104,6 @@ public class WorldMap {
 
         for(int row = building.getOriginRow(); row <= finishingRow; row++) {
             for(int column = building.getOriginColumn(); column <= finishingColumn; column++) {
-                System.out.println("row: " + row + " column: " + column);
                 grid[row][column].setOccupant(building);
             }
         }

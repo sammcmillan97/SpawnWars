@@ -1,12 +1,18 @@
 package com.sam.game;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.badlogic.gdx.graphics.Color;
+import com.sam.game.entity.Building;
 import com.sam.game.util.IntervalTimer;
 
 public class Team {
 
     private Color teamColor;
     private int teamNumber;
+    private Building teamCastle;
+    private Set<Integer> enemies;
     
     private float gold;
     private float passiveGold;
@@ -17,6 +23,8 @@ public class Team {
         this.teamNumber = teamNumber;
         this.gold = startingGold;
         this.passiveGold = passiveGold;
+
+        enemies = new HashSet<>();
 
         goldTimer = new IntervalTimer(goldInterval);
     }
@@ -31,6 +39,22 @@ public class Team {
 
     public void addGold(float goldAdded) {
         this.gold+= goldAdded; 
+    }
+
+    public void addEnemy(int teamNumber) {
+        enemies.add(teamNumber);
+    }
+
+    public Set<Integer> getEnemies() {
+        return this.enemies;
+    }
+
+    public void setCastle(Building building) {
+        teamCastle = building;
+    }
+
+    public Building getCastle() {
+        return teamCastle;
     }
 
     protected boolean spendGold(float goldRemoved) {
