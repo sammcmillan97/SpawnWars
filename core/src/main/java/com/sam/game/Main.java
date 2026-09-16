@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.sam.game.content.Catalogue;
+import com.sam.game.debug.FlowFieldOverlay;
 import com.sam.game.content.BuildingType;
 import com.sam.game.entity.Entity;
 import com.sam.game.entity.SpawnBuilding;
@@ -28,6 +29,10 @@ public class Main extends ApplicationAdapter {
     private FitViewport viewPort;
     private GameContext gameContext;
     private Catalogue catalogue;
+
+    //debugging
+    private FlowFieldOverlay flowFieldOverlay;
+    private boolean showFlowField = false;
 
     //Controls
     public static final float CAMERA_MOVE_SPEED = 300;
@@ -89,6 +94,9 @@ public class Main extends ApplicationAdapter {
         }
 
         gameContext.addBuilding(enemyBarracks);
+
+        gameContext.buildFlowFields();
+        flowFieldOverlay = new FlowFieldOverlay();
     }
 
     public void cameraControl(OrthographicCamera camera, float delta) {
@@ -122,6 +130,9 @@ public class Main extends ApplicationAdapter {
     public void playerControl(GameContext gameContext) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
             buildMenuOpen = true;
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            showFlowField = !showFlowField;
         }
 
         if (buildMenuOpen) {
@@ -179,9 +190,12 @@ public class Main extends ApplicationAdapter {
         }
 
         gameContext.updateTeams(delta);
-
         gameContext.addBufferAndClearBuffer();
         gameContext.removeDeadEntityAndClearBuffer();
+
+        if (gameContext.getFlowFieldsNeedRebuilding()) {
+            gameContext.buildFlowFields();
+        }
 
         entities = gameContext.getEntityArray();
         
@@ -209,6 +223,9 @@ public class Main extends ApplicationAdapter {
         batch.begin();
         font.draw(batch, "P1 gold: " + (int) gameContext.getTeam(1).getGold(), 10, viewPort.getWorldHeight() - 10);
         font.draw(batch, "P2 gold: " + (int) gameContext.getTeam(2).getGold(), 10, viewPort.getWorldHeight() - 40);
+        if (showFlowField) {
+            flowFieldOverlay.render(gameContext, player, camera);
+        }
         batch.end();
     }
 

@@ -75,7 +75,7 @@ public class WorldMap {
         return new Vector2(x, y);
     }
 
-    private boolean outBounds(int row, int column) {
+    public boolean outBounds(int row, int column) {
         return (column < 0 || column >= grid[0].length || row  < 0 || row >= grid.length);
     }
 
@@ -171,7 +171,7 @@ public class WorldMap {
                 steps--;
             }
             
-            //go down
+            //go up
             steps = lengthOfHeightSearch;
             while(steps > 0) {
                 if (!outBounds(currentRow, currentColumn) && grid[currentRow][currentColumn].isEmpty()) {
@@ -191,7 +191,7 @@ public class WorldMap {
                 steps--;
             }
 
-            //go up
+            //go down
             steps = lengthOfHeightSearch;
             while(steps > 0) {
                 if (!outBounds(currentRow, currentColumn) && grid[currentRow][currentColumn].isEmpty()) {
@@ -212,4 +212,5 @@ public class WorldMap {
 
         return null;
     }
+
 }
