@@ -10,17 +10,17 @@ public class UnitType {
     private Texture texture;
     private float movementSpeed;
     private float damage;
-    private float range;
+    private float attackRange;
     private float attackSpeed;
 
-    public UnitType(float width, float height, float maxHealth, Texture texture, float movementSpeed, float damage, float range, float attackSpeed) {
+    public UnitType(float width, float height, float maxHealth, Texture texture, float movementSpeed, float damage, float attackRange, float attackSpeed) {
         this.width = width;
         this.height = height;
         this.maxHealth = maxHealth;
         this.texture = texture;
         this.movementSpeed = movementSpeed;
         this.damage = damage;
-        this.range = range;
+        this.attackRange = attackRange;
         this.attackSpeed = attackSpeed;
     }
 
@@ -48,8 +48,8 @@ public class UnitType {
         return this.damage;
     }
 
-    public float getRange() {
-        return this.range;
+    public float getAttackRange() {
+        return this.attackRange;
     }
 
     public float getAttackSpeed() {

@@ -11,7 +11,7 @@ public class Unit extends Entity {
     private Entity target;
 
     private float movementSpeed;
-    private float range;
+    private float attackRange;
     private float damage;
     private IntervalTimer attackTimer; 
 
@@ -21,7 +21,7 @@ public class Unit extends Entity {
         
         this.movementSpeed = unitType.getMovementSpeed();
         this.damage = unitType.getDamage();
-        this.range = unitType.getRange();
+        this.attackRange = unitType.getAttackRange();
 
         //Attacks per second
         attackTimer = new IntervalTimer(1 / unitType.getAttackSpeed());
@@ -34,22 +34,14 @@ public class Unit extends Entity {
             return; 
         }
 
-        if (target == null || target.health <= 0) {
-            getNearestEnemy(gameContext); 
-        }
-
-        if (target != null) {
-            if (this.position.dst(this.target.position) > range) {
-                move(delta, gameContext);
-            } else {
-                attack(delta, gameContext);
-            }
-        }
+        move(delta, gameContext);
     }   
 
 
     private void move(float delta, GameContext gameContext) {
-        Vector2 movement = new Vector2(target.position).sub(position).nor().scl(delta * movementSpeed);
+        Vector2 moveTo = new Vector2();
+        gameContext.getFlowDirection(this.team, this.position, moveTo);
+        Vector2 movement = new Vector2(moveTo).scl(delta * movementSpeed);
         position.add(movement);
     }
 
